@@ -133,6 +133,19 @@ td small{display:block;color:var(--mute);font-size:16px;line-height:1.3}
 .rk{display:flex;justify-content:space-between;align-items:center;gap:10px;padding:6px 0;border-top:1px solid var(--line);font-size:19px}.rk small{display:block;color:var(--mute);font-size:16px}
 .sumbox{margin-top:16px;padding:12px 18px;background:var(--card);border:1px solid var(--line);border-left:6px solid var(--terra);border-radius:10px;font-size:20px}.sumbox b{font-size:22px}.sumbox ol{margin:6px 0 0;padding-left:24px}
 #m0 .kpi b{font-size:30px}
+
+.present-btn{margin-top:14px;font-family:inherit;font-size:21px;font-weight:700;padding:6px 22px;border-radius:99px;border:0;background:var(--terra);color:#fff;cursor:pointer}
+.present-btn:hover{filter:brightness(1.08)}.present-btn:focus-visible,#presOv button:focus-visible{outline:3px solid var(--amber);outline-offset:2px}
+#presOv{position:fixed;top:0;right:0;bottom:0;left:0;z-index:1000;background:var(--bg);color:var(--ink);display:flex;flex-direction:column;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}
+#presOv .pbar{height:6px;background:var(--line);flex:none}#presOv .pbar i{display:block;height:100%;width:0;background:var(--terra);transition:width .25s}
+#presOv .pstage{flex:1;min-height:0;display:flex;align-items:center;justify-content:center;overflow:hidden}
+#presOv .pslide{width:920px;flex:none;transform-origin:center center}
+#presOv .pslide header{padding:0}#presOv .pslide .card{margin:0}
+#presOv .pexit{position:absolute;top:calc(env(safe-area-inset-top,0px) + 16px);right:16px;z-index:2;font-family:inherit;font-size:19px;font-weight:700;padding:4px 16px;border-radius:99px;border:1px solid var(--slate);background:var(--card);color:var(--ink);cursor:pointer}
+#presOv .pnav{flex:none;display:flex;justify-content:center;align-items:center;gap:18px;padding:8px 12px 12px;font-size:19px;color:var(--mute)}
+#presOv .pnav button{width:48px;height:48px;border-radius:50%;border:1px solid var(--slate);background:var(--card);color:var(--ink);font-size:28px;line-height:1;cursor:pointer;font-family:inherit}
+#presOv .pnav button:disabled{opacity:.35;cursor:default}#presOv .pcount{min-width:70px;text-align:center;font-weight:700;color:var(--ink)}
+@media (max-width:640px){#presOv .phint{display:none}}
 </style>
 </head>
 <body>
@@ -152,6 +165,7 @@ td small{display:block;color:var(--mute);font-size:16px;line-height:1.3}
 <span class="tag">Dashboard · Procurement 2026</span>
 <h1>ผลงานจัดซื้อ IT/IOT ปี 2026</h1>
 <p class="sub">ข้อมูลจากทะเบียน PR/PO ชีต Oil 2026 · 154 PO · PR เข้าระบบ 8 ม.ค. – 23 ก.ย. 2026 · ยอดเป็นมูลค่าสั่งซื้อ (PO)</p>
+<button type="button" class="present-btn" id="presBtn">▶ โหมดนำเสนอ</button>
 <div class="kpis"><div class="kpi" style="border-top-color:var(--slate)"><b>37.06 ล้านบาท</b><span>Total Spend · 154 PO</span></div><div class="kpi" style="border-top-color:var(--sage)"><b>−3.88%</b><span>ต่ำกว่างบ · งบ 38.56 ล้านบาท</span></div><div class="kpi" style="border-top-color:var(--amber)"><b>1.50 ล้านบาท</b><span>Cost Saving · ต่อรองลดได้ 91 จาก 154 PO</span></div><div class="kpi" style="border-top-color:var(--terra)"><b>194,400 บาท/ปี</b><span>Cost Avoidance · Module 2</span></div></div>
 <div class="sumbox"><b>สรุปสำหรับผู้บริหาร</b><ol>
 <li>ใช้จ่ายอยู่ในงบ: 37.06 ล้านบาท ต่ำกว่างบ 3.88%</li>
@@ -623,6 +637,51 @@ var m6f=document.getElementById("m6frame"),m6loaded=false;
 function loadM6(){if(!m6loaded){m6f.src=M6_SRC;m6loaded=true}}
 document.querySelector('[data-t="m6"]').addEventListener("click",loadM6);
 if(!document.getElementById("m6").hidden)loadM6();
+
+(function(){
+var btn=document.getElementById("presBtn");if(!btn)return;
+var ov,stage,bar,cnt,pv,nx,slides=[],idx=0,open=false,tx=null;
+function build(){
+ var src=document.getElementById("m0"),cards=src.querySelectorAll(".dgrid > .card");slides=[];
+ var t=document.createElement("div");t.className="pslide";var h=src.querySelector("header").cloneNode(true);
+ var pb=h.querySelector("#presBtn");if(pb)pb.remove();t.appendChild(h);slides.push(t);
+ Array.prototype.slice.call(cards).sort(function(a,b){return parseInt(a.querySelector("h3").textContent)-parseInt(b.querySelector("h3").textContent)}).forEach(function(c){var w=document.createElement("div");w.className="pslide";w.appendChild(c.cloneNode(true));slides.push(w)});
+}
+function fit(){
+ var s=stage.firstChild;if(!s)return;s.style.transform="none";
+ var w=stage.clientWidth-32,h=stage.clientHeight-24,k=Math.min(w/s.offsetWidth,h/s.offsetHeight,1.9);
+ s.style.transform="scale("+k+")";
+}
+function show(i){
+ idx=Math.max(0,Math.min(slides.length-1,i));stage.innerHTML="";stage.appendChild(slides[idx]);
+ cnt.textContent=(idx+1)+" / "+slides.length;bar.style.width=((idx+1)/slides.length*100)+"%";
+ pv.disabled=idx===0;nx.disabled=idx===slides.length-1;fit();
+}
+function onKey(e){
+ if(!open)return;var k=e.key;
+ if(k==="Escape"){close();e.preventDefault()}
+ else if(k==="ArrowRight"||k==="PageDown"||(k===" "&&e.target.tagName!=="BUTTON")){show(idx+1);e.preventDefault()}
+ else if(k==="ArrowLeft"||k==="PageUp"){show(idx-1);e.preventDefault()}
+ else if(k==="Home"){show(0);e.preventDefault()}
+ else if(k==="End"){show(slides.length-1);e.preventDefault()}
+}
+function start(){
+ build();ov=document.createElement("div");ov.id="presOv";ov.setAttribute("role","dialog");ov.setAttribute("aria-label","โหมดนำเสนอ");ov.tabIndex=-1;
+ ov.innerHTML='<div class="pbar"><i></i></div><button type="button" class="pexit" aria-label="ออกจากโหมดนำเสนอ">✕ ออก (Esc)</button><div class="pstage"></div><div class="pnav"><button type="button" class="pprev" aria-label="สไลด์ก่อนหน้า">‹</button><span class="pcount"></span><button type="button" class="pnext" aria-label="สไลด์ถัดไป">›</button><span class="phint">ใช้ปุ่มลูกศร ← → เลื่อนสไลด์</span></div>';
+ document.body.appendChild(ov);stage=ov.querySelector(".pstage");bar=ov.querySelector(".pbar i");cnt=ov.querySelector(".pcount");pv=ov.querySelector(".pprev");nx=ov.querySelector(".pnext");
+ pv.onclick=function(){show(idx-1)};nx.onclick=function(){show(idx+1)};ov.querySelector(".pexit").onclick=close;
+ stage.addEventListener("touchstart",function(e){tx=e.touches[0].clientX},{passive:true});
+ stage.addEventListener("touchend",function(e){if(tx===null)return;var d=e.changedTouches[0].clientX-tx;tx=null;if(Math.abs(d)>50)show(idx+(d<0?1:-1))});
+ open=true;document.body.style.overflow="hidden";show(0);ov.focus();
+ try{var r=ov.requestFullscreen&&ov.requestFullscreen();if(r&&r.catch)r.catch(function(){})}catch(x){}
+}
+function close(){
+ if(!open)return;open=false;document.body.style.overflow="";
+ try{if(document.fullscreenElement&&document.exitFullscreen)document.exitFullscreen()}catch(x){}
+ ov.remove();btn.focus();
+}
+btn.onclick=start;document.addEventListener("keydown",onKey);window.addEventListener("resize",function(){if(open)fit()});
+})();
 </script>
 </body>
 </html>
