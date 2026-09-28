@@ -146,6 +146,10 @@ td small{display:block;color:var(--mute);font-size:16px;line-height:1.3}
 #presOv .pnav button{width:48px;height:48px;border-radius:50%;border:1px solid var(--slate);background:var(--card);color:var(--ink);font-size:28px;line-height:1;cursor:pointer;font-family:inherit}
 #presOv .pnav button:disabled{opacity:.35;cursor:default}#presOv .pcount{min-width:70px;text-align:center;font-weight:700;color:var(--ink)}
 @media (max-width:640px){#presOv .phint{display:none}}
+
+.wrap.full{max-width:none;padding:0}
+#m6frame{width:100%;display:block;border:0;height:calc(100vh - 64px);min-height:560px;background:#faf3da}
+@media (min-width:800px){#m6frame{height:100vh}}
 </style>
 </head>
 <body>
@@ -536,8 +540,8 @@ td small{display:block;color:var(--mute);font-size:16px;line-height:1.3}
 </section>
 </div>
 
-<div id="m6" role="tabpanel" hidden style="padding:0;max-width:none;margin:0 -18px">
-<iframe id="m6frame" title="Vendor Master" style="width:100%;height:88vh;min-height:640px;border:0;display:block;background:#faf3da"></iframe>
+<div id="m6" role="tabpanel" hidden>
+<iframe id="m6frame" title="Vendor Master"></iframe>
 </div>
 </div>
 
@@ -590,7 +594,7 @@ calc();
 
 document.querySelectorAll(".tabs button").forEach(function(b){b.onclick=function(){
  document.querySelectorAll(".tabs button").forEach(function(x){var on=x===b;x.setAttribute("aria-selected",on);document.getElementById(x.dataset.t).hidden=!on});
- window.scrollTo(0,0)}});
+ document.querySelector(".wrap").classList.toggle("full",b.dataset.t==="m6");window.scrollTo(0,0)}});
 var f2=[{k:"n",l:"จำนวนเครื่อง",u:"เครื่อง",v:6,s:1},{k:"r",l:"ค่าเช่า บาท/เครื่อง/เดือน",u:"",v:2700,s:100},{k:"m",l:"ระยะสัญญา",u:"เดือน",v:12,s:1}];
 var d2=f2.map(function(x){return x.v}),o2=[];
 f2.forEach(function(x){
